@@ -314,7 +314,7 @@ export default class ImagesUploader extends Component {
 					method: 'POST',
 					credentials: 'include',
 					body: imageFormData,
-					headers: this.props.headers,
+					headers: this.props.headers
 				});
 
 				if (response && response.status && response.status === 200) {
