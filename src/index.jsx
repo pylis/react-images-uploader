@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* @flow */
 import React, { Component, PropTypes } from 'react';
 import fetch from 'isomorphic-fetch';
@@ -77,7 +78,7 @@ export default class ImagesUploader extends Component {
 			filesInputContainer: PropTypes.object,
 			notification: PropTypes.object,
 		}),
-		object: PropTypes.object
+		object: PropTypes.object,
 	};
 
 	static defaultProps = {
@@ -300,24 +301,33 @@ export default class ImagesUploader extends Component {
 			try {
 				const imageFormData = new FormData();
 
-				for (let i = 0; i < files.length; i++) {
-					imageFormData.append(this.props.dataName, files[i], files[i].name);
-				}
-
-				const keys = Object.keys(this.props.object);
+				const keys = Object.keys(this.props.additionalFormDataFields);
 
 				for (let i = 0; i < keys.length; i++) {
-					imageFormData.append(keys[i],this.props.object[keys[i]]);
+					imageFormData.append(keys[i], this.props.additionalFormDataFields[keys[i]]);
+				}
+
+				for (let i = 0; i < files.length; i++) {
+					imageFormData.append(this.props.dataName, files[i], files[i].name);
 				}
 
 				let response = await fetch(url, {
 					method: 'POST',
 					credentials: 'include',
 					body: imageFormData,
-					headers: this.props.headers
+					headers: this.props.headers,
 				});
 
-				if (response && response.status && response.status === 200) {
+				if (response && response.status && response.status === 204 && this.props.imagePreviewUrls) {
+					this.setState({
+						imagePreviewUrls: this.props.imagePreviewUrls,
+						optimisticPreviews: [],
+						loadState: 'success',
+					});
+					if (onLoadEnd && typeof onLoadEnd === 'function') {
+						onLoadEnd(false, response);
+					}
+				} else if (response && response.status && response.status === 200) {
 					response = await response.json();
 					const multiple = this.props.multiple;
 					if (response instanceof Array || typeof response === 'string') {
@@ -335,24 +345,10 @@ export default class ImagesUploader extends Component {
 						if (onLoadEnd && typeof onLoadEnd === 'function') {
 							onLoadEnd(false, response);
 						}
-					} else {
-						const err = {
-							message: 'invalid response type',
-							response,
-							fileName: 'ImagesUploader',
-						};
-						this.setState({
-							loadState: 'error',
-							optimisticPreviews: [],
-						});
-						if (onLoadEnd && typeof onLoadEnd === 'function') {
-							onLoadEnd(err);
-						}
-					}
 				} else {
 					const err = {
-						message: 'server error',
-						status: response ? response.status : false,
+						message: 'invalid response type',
+						response,
 						fileName: 'ImagesUploader',
 					};
 					this.setState({
@@ -363,6 +359,20 @@ export default class ImagesUploader extends Component {
 						onLoadEnd(err);
 					}
 				}
+			} else {
+				const err = {
+					message: 'server error',
+					status: response ? response.status : false,
+					fileName: 'ImagesUploader',
+				};
+				this.setState({
+					loadState: 'error',
+					optimisticPreviews: [],
+				});
+				if (onLoadEnd && typeof onLoadEnd === 'function') {
+					onLoadEnd(err);
+				}
+			}
 			} catch (err) {
 				if (onLoadEnd && typeof onLoadEnd === 'function') {
 					onLoadEnd(err);
@@ -375,17 +385,9 @@ export default class ImagesUploader extends Component {
 		}
 	}
 
-	@autobind
-	handleImageChange(e: Object) {
-		e.preventDefault();
+	// eslint-disable-next-line max-len
 
-		const filesList = e.target.files;
-		const { onLoadStart, onLoadEnd, url, optimisticPreviews, multiple } = this.props;
-
-		if (onLoadStart && typeof onLoadStart === 'function') {
-			onLoadStart();
-		}
-
+	continueHandleImageChange(filesList, onLoadEnd, url, optimisticPreviews, multiple) {
 		this.setState({
 			loadState: 'loading',
 		});
@@ -444,6 +446,30 @@ export default class ImagesUploader extends Component {
 
 		if (url) {
 			this.loadImages(filesList, url, onLoadEnd);
+		}
+	}
+
+	@autobind
+	handleImageChange(e: Object) {
+		e.preventDefault();
+
+		const filesList = e.target.files;
+		const { onLoadStart, onLoadEnd, postUrl, optimisticPreviews, multiple } = this.props;
+
+		let promise;
+
+		if (onLoadStart && typeof onLoadStart === 'function') {
+			promise = onLoadStart(e);
+		}
+
+		if (promise && promise.then) {
+			promise.then((result) => {
+				this.props.setAdditionalProperties(result);
+				this.continueHandleImageChange(filesList, onLoadEnd, postUrl,
+					optimisticPreviews, multiple);
+			});
+		} else {
+			this.continueHandleImageChange(filesList, onLoadEnd, postUrl, optimisticPreviews, multiple);
 		}
 	}
 
