@@ -82,7 +82,7 @@ export default class ImagesUploader extends Component {
 	};
 
 	static defaultProps = {
-		dataName: 'imageFiles',
+		dataName: 'file',
 		headers: {},
 		classNames: {},
 		styles: {},
@@ -345,10 +345,24 @@ export default class ImagesUploader extends Component {
 						if (onLoadEnd && typeof onLoadEnd === 'function') {
 							onLoadEnd(false, response);
 						}
+					} else {
+						const err = {
+							message: 'invalid response type',
+							response,
+							fileName: 'ImagesUploader',
+						};
+						this.setState({
+							loadState: 'error',
+							optimisticPreviews: [],
+						});
+						if (onLoadEnd && typeof onLoadEnd === 'function') {
+							onLoadEnd(err);
+						}
+					}
 				} else {
 					const err = {
-						message: 'invalid response type',
-						response,
+						message: 'server error',
+						status: response ? response.status : false,
 						fileName: 'ImagesUploader',
 					};
 					this.setState({
@@ -359,20 +373,6 @@ export default class ImagesUploader extends Component {
 						onLoadEnd(err);
 					}
 				}
-			} else {
-				const err = {
-					message: 'server error',
-					status: response ? response.status : false,
-					fileName: 'ImagesUploader',
-				};
-				this.setState({
-					loadState: 'error',
-					optimisticPreviews: [],
-				});
-				if (onLoadEnd && typeof onLoadEnd === 'function') {
-					onLoadEnd(err);
-				}
-			}
 			} catch (err) {
 				if (onLoadEnd && typeof onLoadEnd === 'function') {
 					onLoadEnd(err);
@@ -459,7 +459,7 @@ export default class ImagesUploader extends Component {
 		let promise;
 
 		if (onLoadStart && typeof onLoadStart === 'function') {
-			promise = onLoadStart(e);
+			promise = onLoadStart(filesList);
 		}
 
 		if (promise && promise.then) {
