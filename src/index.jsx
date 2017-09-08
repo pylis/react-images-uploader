@@ -465,7 +465,7 @@ export default class ImagesUploader extends Component {
 		if (promise && promise.then) {
 			promise.then((result) => {
 				this.props.setAdditionalProperties(result);
-				this.continueHandleImageChange(filesList, onLoadEnd, postUrl,
+				this.continueHandleImageChange(filesList, onLoadEnd, result.postUrl,
 					optimisticPreviews, multiple);
 			});
 		} else {
