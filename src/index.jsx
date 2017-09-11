@@ -127,12 +127,13 @@ export default class ImagesUploader extends Component {
 	}
 
 	componentWillReceiveProps(nextProps: Object) {
-		if (!this.props.images && nextProps.images && nextProps.multiple !== false) {
+		if ((!this.props.images && nextProps.images && nextProps.multiple !== false)) {
 			this.setState({
 				imagePreviewUrls: nextProps.images,
 			});
 		}
-		if (!this.props.image && nextProps.image && nextProps.multiple === false) {
+		if ((this.props.image !== nextProps.image) ||
+			(!this.props.image && nextProps.image && nextProps.multiple === false)) {
 			this.setState({
 				imagePreviewUrls: [nextProps.image],
 			});
