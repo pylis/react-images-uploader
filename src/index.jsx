@@ -454,7 +454,7 @@ export default class ImagesUploader extends Component {
 		e.preventDefault();
 
 		const filesList = e.target.files;
-		const { onLoadStart, onLoadEnd, postUrl, optimisticPreviews, multiple } = this.props;
+		const { onLoadStart, onLoadEnd, url, optimisticPreviews, multiple } = this.props;
 
 		let promise;
 
@@ -463,13 +463,12 @@ export default class ImagesUploader extends Component {
 		}
 
 		if (promise && promise.then) {
-			promise.then((result) => {
-				this.props.setAdditionalProperties(result);
-				this.continueHandleImageChange(filesList, onLoadEnd, result.postUrl,
+			promise.then(() => {
+				this.continueHandleImageChange(filesList, onLoadEnd, this.props.url,
 					optimisticPreviews, multiple);
 			});
 		} else {
-			this.continueHandleImageChange(filesList, onLoadEnd, postUrl, optimisticPreviews, multiple);
+			this.continueHandleImageChange(filesList, onLoadEnd, url, optimisticPreviews, multiple);
 		}
 	}
 
