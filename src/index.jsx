@@ -330,7 +330,9 @@ export default class ImagesUploader extends Component {
 					method: 'PUT',
 					credentials: 'include',
 					body: result,
-					headers: this.props.headers,
+					headers: Object.assign(this.props.headers, {
+						'content-type': files[0].type,
+					}),
 				});
 
 				if (response && response.status && response.status === 200 && this.props.image) {
