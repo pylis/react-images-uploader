@@ -300,7 +300,7 @@ export default class ImagesUploader extends Component {
 	async loadImages(files: FileList, url: string, onLoadEnd?: Function): any {
 		if (url) {
 			try {
-				const imageFormData = new FormData();
+				/* const imageFormData = new FormData();
 
 				const keys = Object.keys(this.props.additionalFormDataFields);
 
@@ -310,16 +310,30 @@ export default class ImagesUploader extends Component {
 
 				for (let i = 0; i < files.length; i++) {
 					imageFormData.append(this.props.dataName, files[i], files[i].name);
-				}
+				}*/
+
+				const reader = new FileReader();
+				reader.readAsDataURL(files[0]);
+
+				const promise = new Promise((resolve, reject) => {
+					reader.onload = function () {
+						resolve(reader.result);
+					};
+					reader.onerror = function (error) {
+						reject(error);
+					};
+				});
+
+				const result = await promise;
 
 				let response = await fetch(url, {
-					method: 'POST',
+					method: 'PUT',
 					credentials: 'include',
-					body: imageFormData,
+					body: result,
 					headers: this.props.headers,
 				});
 
-				if (response && response.status && response.status === 204 && this.props.imagePreviewUrls) {
+				if (response && response.status && response.status === 200 && this.props.image) {
 					this.setState({
 						imagePreviewUrls: this.props.imagePreviewUrls,
 						optimisticPreviews: [],
