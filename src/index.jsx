@@ -312,20 +312,6 @@ export default class ImagesUploader extends Component {
 					imageFormData.append(this.props.dataName, files[i], files[i].name);
 				}*/
 
-				const reader = new FileReader();
-				reader.readAsDataURL(files[0]);
-
-				const promise = new Promise((resolve, reject) => {
-					reader.onload = function () {
-						resolve(reader.result);
-					};
-					reader.onerror = function (error) {
-						reject(error);
-					};
-				});
-
-				const result = await promise;
-
 				let response = await fetch(url, {
 					method: 'PUT',
 					credentials: 'include',
