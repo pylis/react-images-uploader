@@ -329,7 +329,7 @@ export default class ImagesUploader extends Component {
 				let response = await fetch(url, {
 					method: 'PUT',
 					credentials: 'include',
-					body: result,
+					body: files[0],
 					headers: Object.assign(this.props.headers, {
 						'content-type': files[0].type,
 					}),
