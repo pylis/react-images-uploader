@@ -652,6 +652,7 @@ export default class ImagesUploader extends Component {
 			disabledColor,
 			borderColor,
 			disabledBorderColor,
+			accept,
 		} = this.props;
 
 		const containerClassNames = classnames({
@@ -713,7 +714,7 @@ export default class ImagesUploader extends Component {
 						<Dropzone
 							onDrop={this.handleFileDrop}
 							disableClick
-							accept="image/*"
+							accept={accept || 'image/*'}
 							className={classNames.dropzone || `${classNamespace}dropzone`}
 							style={dropzoneStyle}
 							multiple={
@@ -755,7 +756,7 @@ export default class ImagesUploader extends Component {
 							this.input = ref;
 						}}
 						type="file"
-						accept="image/*"
+						accept={accept || 'image/*'}
 						multiple={multiple === false ? false : 'multiple'}
 						disabled={disabled || loadState === 'loading'}
 						onChange={this.handleImageChange}
