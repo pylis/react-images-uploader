@@ -134,8 +134,10 @@ export default class ImagesUploader extends Component {
 		}
 		if ((this.props.image !== nextProps.image) ||
 			(!this.props.image && nextProps.image && nextProps.multiple === false)) {
+			const previews = nextProps.image ? [nextProps.image] : [];
+
 			this.setState({
-				imagePreviewUrls: [nextProps.image],
+				imagePreviewUrls: previews,
 			});
 		}
 	}
@@ -300,18 +302,6 @@ export default class ImagesUploader extends Component {
 	async loadImages(files: FileList, url: string, onLoadEnd?: Function): any {
 		if (url) {
 			try {
-				/* const imageFormData = new FormData();
-
-				const keys = Object.keys(this.props.additionalFormDataFields);
-
-				for (let i = 0; i < keys.length; i++) {
-					imageFormData.append(keys[i], this.props.additionalFormDataFields[keys[i]]);
-				}
-
-				for (let i = 0; i < files.length; i++) {
-					imageFormData.append(this.props.dataName, files[i], files[i].name);
-				}*/
-
 				let response = await fetch(url, {
 					method: 'PUT',
 					credentials: 'include',
